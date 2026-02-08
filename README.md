@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ren Fujita
 
-## Getting Started
+Flickr-inspired personal photo sharing site built with:
+- Next.js App Router + TypeScript
+- TailwindCSS
+- Supabase Auth/Postgres/RLS
+- URL-only photo uploads (no file upload)
 
-First, run the development server:
+## Environment Variables
+
+Create `.env.local`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open `http://localhost:3000`.
 
-## Learn More
+## Database Setup (Supabase)
 
-To learn more about Next.js, take a look at the following resources:
+Run the migration in Supabase SQL editor:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`supabase/migrations/202602080001_init.sql`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This migration creates:
+- `profiles`
+- `photos`
+- `albums`
+- `album_photos`
+- `updated_at` triggers
+- RLS policies for public/private visibility and owner-only admin writes
 
-## Deploy on Vercel
+## Auth Model
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- No public sign-up UI.
+- Login page is `/login` (email/password only).
+- `/admin/*` routes are protected by middleware and redirect to `/login` if unauthenticated.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Routes
+
+Public:
+- `/`
+- `/photo/[id]`
+- `/albums`
+- `/album/[id]`
+- `/features`
+- `/groups`
+- `/events`
+- `/blog`
+- `/about`
+
+Admin:
+- `/admin`
+- `/admin/upload`
+- `/admin/photos`
+- `/admin/albums`
+- `/admin/albums/[id]`
+- `/admin/photo/[id]`
+- `/admin/settings`
+
+## Notes
+
+- All image rendering uses `object-contain` (no cropping/distortion).
+- Public users can only see `PUBLIC` photos/albums.
+- Owner can manage `PUBLIC`/`PRIVATE` visibility for photos and albums.
